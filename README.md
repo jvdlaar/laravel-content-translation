@@ -141,7 +141,7 @@ class Country extends Model implements TranslatableContract {
 In above example $country->name and $country->nationality are translated. When there is no translation in the database
 the admin_name property is used as fallback.
 
-== Saving translations
+=== Saving translations
 You can add a translation to the database by using the facade:
 
 ```php
