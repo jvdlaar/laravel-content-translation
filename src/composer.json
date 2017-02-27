@@ -1,0 +1,31 @@
+{
+  "name": "jvdlaar/laravel-content-translation",
+  "description": "A Laravel 5 package to translate properties of a model.",
+  "keywords": [
+    "ezcompany",
+    "model",
+    "laravel",
+    "translation"
+  ],
+  "homepage": "https://github.com/jvdlaar/laravel-content-translation",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Johnny van de Laar",
+      "email": "johnny@ezcompany.nl",
+      "homepage": "https://ezcompany.nl",
+      "role": "Developer"
+    }
+  ],
+  "require": {
+    "php" : "^7.0",
+    "illuminate/database": "~5.2.0|~5.3.0|~5.4.0",
+    "illuminate/support": "~5.2.0|~5.3.0|~5.4.0",
+    "mcamara/laravel-localization": "^1.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "JvdLaar\\ContentTranslation\\": "src"
+    }
+  }
+}
