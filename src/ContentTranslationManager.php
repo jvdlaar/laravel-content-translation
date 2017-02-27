@@ -36,7 +36,7 @@ class ContentTranslationManager {
    * Return the supported locales.
    */
   public function getSupportedLocales() {
-    return ContentTranslationFacade::getLocales();
+    return ContentTranslation::getLocales();
   }
 
   /**
@@ -106,7 +106,7 @@ class ContentTranslationManager {
 
     // Fetch from db.
     if (!isset($this->translations[$locale][$content_type][$content_id])) {
-      $this->translations[$locale][$content_type][$content_id] = \ContentTranslation::toBase()
+      $this->translations[$locale][$content_type][$content_id] = ContentTranslation::toBase()
         ->where('content_type', $content_type)
         ->where('content_id', $content_id)
         ->where('locale', $locale)
@@ -121,7 +121,7 @@ class ContentTranslationManager {
    * Get translations from the database grouped by locale.
    */
   public function getTranslationsGroupedByLocale($content_type, $content_id, $content_property) {
-    return \ContentTranslation::where('content_type', $content_type)
+    return ContentTranslation::where('content_type', $content_type)
       ->where('content_id', $content_id)
       ->where('content_property', $content_property)
       ->get()
@@ -132,7 +132,7 @@ class ContentTranslationManager {
    * Get translations from the database.
    */
   public function getTranslations($content_type, $ids, $property, $locale) {
-    $query = \ContentTranslation::where('content_type', $content_type);
+    $query = ContentTranslation::where('content_type', $content_type);
     $query->whereIn('content_id', $ids);
     $query->where('content_property', $property);
     $query->where('locale', $locale);
@@ -144,7 +144,7 @@ class ContentTranslationManager {
    * Search through translations in the database.
    */
   public function searchTranslationsForContentIds($content_type, array $content_properties, $search) {
-    $query = \ContentTranslation::toBase();
+    $query = ContentTranslation::toBase();
     return $query
       ->where('content_type', $content_type)
       ->whereIn('content_property', $content_properties)
@@ -164,10 +164,10 @@ class ContentTranslationManager {
     ];
 
     if (trim($translation) == '') {
-      return \ContentTranslation::wheres($conditions)->delete();
+      return ContentTranslation::wheres($conditions)->delete();
     }
 
-    return \ContentTranslation::updateOrCreate($conditions, $conditions + [
+    return ContentTranslation::updateOrCreate($conditions, $conditions + [
       'translation' => $translation,
     ]);
   }
@@ -176,7 +176,7 @@ class ContentTranslationManager {
    * Count existing translations (properties) for this locale.
    */
   public function countTranslations($type, $id, $locale) {
-    return \ContentTranslation::wheres([
+    return ContentTranslation::wheres([
       'content_type' => $type,
       'content_id' => $id,
       'locale' => $locale,
