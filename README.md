@@ -5,6 +5,8 @@ the country name translatable.
 
 ## Todo
 - Add user interface to add translations.
+- Add tests
+- Method to disable the "static translations".
 
 ## Installation
 
