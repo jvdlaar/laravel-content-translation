@@ -28,7 +28,7 @@ class ContentTranslationServiceProvider extends ServiceProvider {
 
       $content_translation_manager = new ContentTranslationManager();
 
-      $content_translation_config = config('content-translation');
+      $content_translation_config = config('content-translation.models');
       foreach ($content_translation_config as $key => $model_content_translation) {
         $content_translation_manager->bind($key, $model_content_translation['class'], $model_content_translation);
       }

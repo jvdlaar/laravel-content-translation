@@ -49,4 +49,9 @@ interface TranslatableContract {
    */
   public function getTranslationLocales();
 
+  /**
+   * Eager load translations.
+   */
+  static public function eagerLoadTranslations(array $content_ids, $locale = NULL);
+
 }

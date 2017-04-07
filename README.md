@@ -46,6 +46,7 @@ The following config file will be published in `config/content-translation.php`
 ```php
 
 return [
+  'fallback_language' => 'en',
 
   'country' => [
     'class' => \App\Models\Country::class,
@@ -117,17 +118,6 @@ class Country extends Model implements TranslatableContract {
   }
 
   /**
-   * OVERRIDES
-   */
-
-  /**
-   * Return a nicely formatted, translated name for this country.
-   */
-  public function displayLabel($locale = NULL) {
-    return $this->displayTranslation('name', TRUE, $locale);
-  }
-
-  /**
    * Return an default for a property in this content.
    */
   protected function getTranslationDefault($property) {
@@ -139,7 +129,19 @@ class Country extends Model implements TranslatableContract {
 ```
 
 In above example $country->name and $country->nationality are translated. When there is no translation in the database
-the admin_name property is used as fallback.
+the admin_name property is used as fallback. The 2nd parameter of the function displayTranslation says that there is
+a default that should be used. The 3rd parameter is the locale of the translation, by default the current app
+locale will be used. 4th parameter determines that a fallback language should be used, this fallback language is set
+in the config.
+
+### Eager load translations for multiple models.
+```php
+Country::eagerLoadTranslations([1, 2, 3], 'nl');
+dump(Country::find(1)->name);
+```
+
+In above example 3 countries are eager loaded. So loading the model later and requesting a translation doesn't need an
+additional query.
 
 ### Saving translations
 You can add a translation to the database by using the facade:

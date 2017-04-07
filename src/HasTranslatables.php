@@ -40,16 +40,15 @@ trait HasTranslatables {
     $content_id = $this->getKey();
 
     // Preferred translation from provided locale.
-    if ($translation = \ContentTranslation::getTranslation($content_type, $content_id, $property, $locale)) {
+    $translation = \ContentTranslation::getTranslation($content_type, $content_id, $property, $locale);
+    if (!is_null($translation)) {
       return $translation;
     }
 
-    // Fallback translation from EN.
-    if ($locale != 'en' && $fallback) {
-      if ($translation = \ContentTranslation::getTranslation($content_type, $content_id, $property, 'en')) {
-        // If EN does have a translation, tell ContentTranslation we're using a fallback, so it can notify the user.
-        \ContentTranslation::useFallback($content_type, $content_id, $property);
-
+    // Fallback translation from fallback language.
+    $fallback_language = \ContentTranslation::getFallbackLanguage();
+    if ($locale != $fallback_language && $fallback) {
+      if ($translation = \ContentTranslation::getTranslation($content_type, $content_id, $property, $fallback_language)) {
         return $translation;
       }
     }
@@ -70,6 +69,7 @@ trait HasTranslatables {
   public function displayTranslation($property, $with_default = FALSE, $locale = NULL, $fallback = TRUE) {
     $properties = $this->getTranslationContentProperties();
     $translation = '';
+
     if ($with_default) {
       $translation = $this->translateWithDefault($property, $locale, $fallback);
     }
@@ -80,6 +80,7 @@ trait HasTranslatables {
     if (!empty($properties[$property]['nl2br'])) {
       $translation = nl2br($translation);
     }
+
     return $translation;
   }
 
@@ -89,7 +90,6 @@ trait HasTranslatables {
   protected function getTranslationDefault($property) {
     $content_type = $this->getTranslationContentType();
     $content_id = $this->getKey();
-
     return $content_type . ' ' . $property . ' # ' . $content_id;
   }
 
@@ -98,7 +98,6 @@ trait HasTranslatables {
    */
   public function getTranslationLocales() {
     $locales = \LaravelLocalization::getSupportedLocales();
-
     $content_type = $this->getTranslationContentType();
     $content_id = $this->getKey();
     $content_label_property = $this->getTranslationContentLabelProperty();
@@ -110,7 +109,6 @@ trait HasTranslatables {
     }
 
     asort($locales);
-
     return $locales;
   }
 
@@ -125,29 +123,30 @@ trait HasTranslatables {
       \ContentTranslation::saveTranslation($content_type, $content_id, $property, $locale, $translation);
     }
   }
-
   /**
    * Count existing translations (properties) for this locale.
    */
   public function countTranslations($locale) {
     $content_type = $this->getTranslationContentType();
     $content_id = $this->getKey();
-
     return \ContentTranslation::countTranslations($content_type, $content_id, $locale);
   }
+
+
 
   /**
    * STATICS
    */
 
   /**
-   * Display a translated property.
+   * Eager load translations.
    */
-  static public function getTranslations(array $content_ids, $property, $locale = NULL) {
+  static public function eagerLoadTranslations(array $content_ids, $locale = NULL) {
+    if (!$locale) {
+      $locale = \App::getLocale();
+    }
     $content_type = \ContentTranslation::getContentType(new static);
-    $content_translations = \ContentTranslation::getTranslations($content_type, $content_ids, $property, $locale);
-
-    return $content_translations->map('nl2br');
+    \ContentTranslation::eagerLoadTranslations($content_type, $content_ids, $locale);
   }
 
 }

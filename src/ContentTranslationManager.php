@@ -5,7 +5,6 @@ namespace JvdLaar\ContentTranslation;
 class ContentTranslationManager {
 
   protected $translations = [];
-  protected $using_fallback = FALSE;
   protected $bindings_ct_to_model = [];
   protected $bindings_model_to_ct = [];
   protected $ct_options = [];
@@ -37,6 +36,13 @@ class ContentTranslationManager {
    */
   public function getSupportedLocales() {
     return ContentTranslation::getLocales();
+  }
+
+  /**
+   * Return the fallback language.
+   */
+  public function getFallbackLanguage() {
+    return config('content-translation.fallback_language');
   }
 
   /**
@@ -113,8 +119,8 @@ class ContentTranslationManager {
         ->pluck('translation', 'content_property');
     }
 
-    $object_translations = $this->translations[$locale][$content_type][$content_id];
-    return @$object_translations[$content_property];
+    $content_translation = $this->translations[$locale][$content_type][$content_id];
+    return isset($content_translation[$content_property]) ? $content_translation[$content_property] : NULL;
   }
 
   /**
@@ -131,13 +137,22 @@ class ContentTranslationManager {
   /**
    * Get translations from the database.
    */
-  public function getTranslations($content_type, $ids, $property, $locale) {
-    $query = ContentTranslation::where('content_type', $content_type);
-    $query->whereIn('content_id', $ids);
-    $query->where('content_property', $property);
-    $query->where('locale', $locale);
+  public function eagerLoadTranslations($content_type, array $content_ids, $locale) {
+    $translations = ContentTranslation::query()
+      ->where('content_type', $content_type)
+      ->whereIn('content_id', $content_ids)
+      ->where('locale', $locale)
+      ->get()
+      ->groupBy('content_id');
 
-    return $query->pluck('translation', 'content_id');
+    foreach ($content_ids as $content_id) {
+      if (isset($translations[$content_id])) {
+        $this->translations[$locale][$content_type][$content_id] = $translations[$content_id]->pluck('translation', 'content_property')->toArray();
+      }
+      else {
+        $this->translations[$locale][$content_type][$content_id] = [];
+      }
+    }
   }
 
   /**
@@ -168,8 +183,8 @@ class ContentTranslationManager {
     }
 
     return ContentTranslation::updateOrCreate($conditions, $conditions + [
-      'translation' => $translation,
-    ]);
+        'translation' => $translation,
+      ]);
   }
 
   /**
@@ -181,22 +196,6 @@ class ContentTranslationManager {
       'content_id' => $id,
       'locale' => $locale,
     ])->count();
-  }
-
-  /**
-   * Remember we're using a EN fallback on this page, instead of the preferred locale.
-   */
-  public function useFallback($type, $id, $property) {
-    $this->using_fallback = TRUE;
-
-    // @todo Do something useful with this information, like sending an e-mail or creating a log.
-  }
-
-  /**
-   * Tell the caller IF we're using a EN fallback on this page.
-   */
-  public function isUsingFallback() {
-    return $this->using_fallback;
   }
 
 }
