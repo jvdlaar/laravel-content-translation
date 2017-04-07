@@ -1,3 +1,7 @@
+[![Latest Version](https://img.shields.io/github/release/jvdlaar/laravel-content-translation.svg?style=flat-square)](https://github.com/jvdlaar/laravel-content-translation/releases)
+[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
+[![Total Downloads](https://img.shields.io/packagist/dt/jvdlaar/laravel-content-translation.svg?style=flat-square)](https://packagist.org/packages/jvdlaar/laravel-content-translation)
+
 # Laravel content translation
 
 This package makes properties of your models translatable. For example when you have a Country model then you can make
